@@ -116,7 +116,7 @@ public class VaultCurrency implements Currency {
     public void addAmount(String identifier, BigDecimal amount) {
         OfflinePlayer offlinePlayer = computeOfflinePlayer(identifier);
 
-        if (!offlinePlayer.hasPlayedBefore())
+        if (offlinePlayer == null || !offlinePlayer.hasPlayedBefore())
             economy.depositPlayer(identifier, amount.doubleValue());
         else
             economy.depositPlayer(offlinePlayer, amount.doubleValue());
@@ -126,7 +126,7 @@ public class VaultCurrency implements Currency {
     public boolean removeAmount(String identifier, BigDecimal amount) {
         OfflinePlayer offlinePlayer = computeOfflinePlayer(identifier);
 
-        if (!offlinePlayer.hasPlayedBefore())
+        if (offlinePlayer == null || !offlinePlayer.hasPlayedBefore())
             return economy.withdrawPlayer(identifier, amount.doubleValue()).transactionSuccess();
 
         return economy.withdrawPlayer(offlinePlayer, amount.doubleValue()).transactionSuccess();
@@ -140,7 +140,7 @@ public class VaultCurrency implements Currency {
 
         OfflinePlayer offlinePlayer = computeOfflinePlayer(identifier);
 
-        if (!offlinePlayer.hasPlayedBefore()) {
+        if (offlinePlayer == null || !offlinePlayer.hasPlayedBefore()) {
             double balance = economy.getBalance(identifier);
 
             if (balance > amount.doubleValue()) {
@@ -164,7 +164,7 @@ public class VaultCurrency implements Currency {
     public BigDecimal getAmount(String identifier) {
         OfflinePlayer offlinePlayer = computeOfflinePlayer(identifier);
 
-        if (!offlinePlayer.hasPlayedBefore())
+        if (offlinePlayer == null || !offlinePlayer.hasPlayedBefore())
             return BigDecimal.valueOf(economy.getBalance(identifier));
 
         return BigDecimal.valueOf(economy.getBalance(offlinePlayer));
