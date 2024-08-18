@@ -23,15 +23,26 @@ public class VaultCurrency implements Currency {
     private final String currencyColor;
     private final ItemStack icon;
 
+    private final String currencyNameSingular;
+    private final String currencyNamePlural;
+
     public VaultCurrency(String id) {
-        this(id, ChatColor.GOLD.toString(), new ItemStack(Material.GOLD_NUGGET));
+        this(id, ChatColor.GOLD.toString(), null, null, new ItemStack(Material.GOLD_NUGGET));
     }
 
     public VaultCurrency(String id, String currencyColor) {
-        this(id, currencyColor, new ItemStack(Material.GOLD_NUGGET));
+        this(id, currencyColor, null, null, new ItemStack(Material.GOLD_NUGGET));
+    }
+
+    public VaultCurrency(String id, String currencyColor, String overrideCurrencyNameSingular, String overrideCurrencyNamePlural) {
+        this(id, currencyColor, overrideCurrencyNameSingular, overrideCurrencyNamePlural, new ItemStack(Material.GOLD_NUGGET));
     }
 
     public VaultCurrency(String id, String currencyColor, ItemStack icon) {
+        this(id, currencyColor, null, null, icon);
+    }
+
+    public VaultCurrency(String id, String currencyColor, String overrideCurrencyNameSingular, String overrideCurrencyNamePlural, ItemStack icon) {
         if (Bukkit.getPluginManager().getPlugin("Vault") == null) {
             throw new VaultNotFound("Vault plugin not found.");
         }
@@ -46,6 +57,8 @@ public class VaultCurrency implements Currency {
         this.id = id;
         this.currencyColor = currencyColor;
         this.icon = icon;
+        this.currencyNameSingular = overrideCurrencyNameSingular == null ? economy.currencyNameSingular() : overrideCurrencyNameSingular;
+        this.currencyNamePlural = overrideCurrencyNamePlural == null ? economy.currencyNamePlural() : overrideCurrencyNamePlural;
     }
 
     @Override
@@ -74,12 +87,12 @@ public class VaultCurrency implements Currency {
 
     @Override
     public String getCurrencyNameSingular() {
-        return economy.currencyNameSingular();
+        return currencyNameSingular;
     }
 
     @Override
     public String getCurrencyNamePlural() {
-        return economy.currencyNamePlural();
+        return currencyNamePlural;
     }
 
     @Override
