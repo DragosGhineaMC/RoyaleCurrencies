@@ -82,7 +82,8 @@ public class VaultCurrency implements Currency {
         if (digits == -1)
             return 6; // -1 is not supported
 
-        return digits;
+        return Math.min(digits, 6);
+
     }
 
     @Override
