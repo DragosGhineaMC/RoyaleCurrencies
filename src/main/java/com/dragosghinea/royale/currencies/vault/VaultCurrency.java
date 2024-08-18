@@ -25,6 +25,7 @@ public class VaultCurrency implements Currency {
 
     private final String currencyNameSingular;
     private final String currencyNamePlural;
+    private final int numberOfDecimals;
 
     public VaultCurrency(String id) {
         this(id, ChatColor.GOLD.toString(), null, null, new ItemStack(Material.GOLD_NUGGET));
@@ -34,15 +35,27 @@ public class VaultCurrency implements Currency {
         this(id, currencyColor, null, null, new ItemStack(Material.GOLD_NUGGET));
     }
 
-    public VaultCurrency(String id, String currencyColor, String overrideCurrencyNameSingular, String overrideCurrencyNamePlural) {
-        this(id, currencyColor, overrideCurrencyNameSingular, overrideCurrencyNamePlural, new ItemStack(Material.GOLD_NUGGET));
-    }
-
     public VaultCurrency(String id, String currencyColor, ItemStack icon) {
         this(id, currencyColor, null, null, icon);
     }
 
+    public VaultCurrency(String id, String currencyColor, Integer overrideNumberOfDecimals, ItemStack icon) {
+        this(id, currencyColor, overrideNumberOfDecimals, null, null, icon);
+    }
+
+    public VaultCurrency(String id, String currencyColor, String overrideCurrencyNameSingular, String overrideCurrencyNamePlural) {
+        this(id, currencyColor, overrideCurrencyNameSingular, overrideCurrencyNamePlural, new ItemStack(Material.GOLD_NUGGET));
+    }
+
+    public VaultCurrency(String id, String currencyColor, Integer overrideNumberOfDecimals, String overrideCurrencyNameSingular, String overrideCurrencyNamePlural) {
+        this(id, currencyColor, overrideNumberOfDecimals, overrideCurrencyNameSingular, overrideCurrencyNamePlural, new ItemStack(Material.GOLD_NUGGET));
+    }
+
     public VaultCurrency(String id, String currencyColor, String overrideCurrencyNameSingular, String overrideCurrencyNamePlural, ItemStack icon) {
+        this(id, currencyColor, null, overrideCurrencyNameSingular, overrideCurrencyNamePlural, icon);
+    }
+
+    public VaultCurrency(String id, String currencyColor, Integer overrideNumberOfDecimals, String overrideCurrencyNameSingular, String overrideCurrencyNamePlural, ItemStack icon) {
         if (Bukkit.getPluginManager().getPlugin("Vault") == null) {
             throw new VaultNotFound("Vault plugin not found.");
         }
@@ -59,6 +72,15 @@ public class VaultCurrency implements Currency {
         this.icon = icon;
         this.currencyNameSingular = overrideCurrencyNameSingular == null ? economy.currencyNameSingular() : overrideCurrencyNameSingular;
         this.currencyNamePlural = overrideCurrencyNamePlural == null ? economy.currencyNamePlural() : overrideCurrencyNamePlural;
+        this.numberOfDecimals = overrideNumberOfDecimals == null ? getNumberOfDecimalsFromVault() : overrideNumberOfDecimals;
+    }
+
+    private int getNumberOfDecimalsFromVault() {
+        int digits = economy.fractionalDigits();
+        if (digits == -1)
+            return 6; // -1 is not supported
+
+        return Math.min(digits, 6);
     }
 
     @Override
@@ -78,12 +100,7 @@ public class VaultCurrency implements Currency {
 
     @Override
     public int numberOfDecimals() {
-        int digits = economy.fractionalDigits();
-        if (digits == -1)
-            return 6; // -1 is not supported
-
-        return Math.min(digits, 6);
-
+        return numberOfDecimals;
     }
 
     @Override
