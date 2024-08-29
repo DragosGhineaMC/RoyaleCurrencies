@@ -87,7 +87,7 @@ public interface Currency {
 
     String formatMoney(BigDecimal amount);
 
-    void addAmount(String identifier, BigDecimal amount);
+    boolean addAmount(String identifier, BigDecimal amount);
 
     boolean removeAmount(String identifier, BigDecimal amount);
 

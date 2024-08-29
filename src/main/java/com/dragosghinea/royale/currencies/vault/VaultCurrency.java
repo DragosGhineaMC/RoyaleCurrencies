@@ -3,6 +3,7 @@ package com.dragosghinea.royale.currencies.vault;
 import com.dragosghinea.royale.currencies.Currency;
 import com.dragosghinea.royale.currencies.exceptions.NoEconomyFound;
 import com.dragosghinea.royale.currencies.exceptions.VaultNotFound;
+import lombok.Setter;
 import net.milkbowl.vault.economy.Economy;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -15,6 +16,7 @@ import org.bukkit.plugin.RegisteredServiceProvider;
 import java.math.BigDecimal;
 import java.util.Map;
 import java.util.UUID;
+import java.util.function.Function;
 
 public class VaultCurrency implements Currency {
     private final Economy economy;
@@ -26,6 +28,9 @@ public class VaultCurrency implements Currency {
     private final String currencyNameSingular;
     private final String currencyNamePlural;
     private final int numberOfDecimals;
+
+    @Setter
+    private Function<BigDecimal, String> formatMoneyFunction;
 
     public VaultCurrency(String id) {
         this(id, ChatColor.GOLD.toString(), null, null, new ItemStack(Material.GOLD_NUGGET));
@@ -73,6 +78,8 @@ public class VaultCurrency implements Currency {
         this.currencyNameSingular = overrideCurrencyNameSingular == null ? economy.currencyNameSingular() : overrideCurrencyNameSingular;
         this.currencyNamePlural = overrideCurrencyNamePlural == null ? economy.currencyNamePlural() : overrideCurrencyNamePlural;
         this.numberOfDecimals = overrideNumberOfDecimals == null ? getNumberOfDecimalsFromVault() : overrideNumberOfDecimals;
+
+        this.formatMoneyFunction = amount -> economy.format(amount.doubleValue());
     }
 
     private int getNumberOfDecimalsFromVault() {
@@ -140,17 +147,17 @@ public class VaultCurrency implements Currency {
 
     @Override
     public String formatMoney(BigDecimal amount) {
-        return economy.format(amount.doubleValue());
+        return formatMoneyFunction.apply(amount);
     }
 
     @Override
-    public void addAmount(String identifier, BigDecimal amount) {
+    public boolean addAmount(String identifier, BigDecimal amount) {
         OfflinePlayer offlinePlayer = computeOfflinePlayer(identifier);
 
         if (offlinePlayer == null || !offlinePlayer.hasPlayedBefore())
-            economy.depositPlayer(identifier, amount.doubleValue());
+            return economy.depositPlayer(identifier, amount.doubleValue()).transactionSuccess();
         else
-            economy.depositPlayer(offlinePlayer, amount.doubleValue());
+            return economy.depositPlayer(offlinePlayer, amount.doubleValue()).transactionSuccess();
     }
 
     @Override
